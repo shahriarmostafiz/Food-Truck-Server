@@ -52,6 +52,7 @@ const client = new MongoClient(uri, {
 });
 
 const foodCollection = client.db("Food-Truck").collection("allfoods");
+const userCollection = client.db("Food-Truck").collection("allUsers");
 
 async function run() {
   try {
@@ -66,6 +67,10 @@ async function run() {
           sameSite: false,
         })
         .send({ success: true });
+    });
+    app.post("/api/v1/users", async (req, res) => {
+      const user = req.body;
+      console.log(user);
     });
     app.post("/api/v1/logout", async (req, res) => {
       const user = req.body;
@@ -110,6 +115,16 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await foodCollection.findOne(query);
       res.send(result);
+    });
+
+    // update food database
+    app.post("/api/v1/foods/food/:id", async (req, res) => {
+      const id = req.params.id;
+    });
+
+    app.post("/api/v1/order/:id", async (req, res) => {
+      const id = req.params.id;
+      const order = req.body;
     });
 
     // Connect the client to the server	(optional starting in v4.7)
