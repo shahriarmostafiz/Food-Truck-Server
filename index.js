@@ -52,7 +52,7 @@ const client = new MongoClient(uri, {
 });
 
 const foodCollection = client.db("Food-Truck").collection("allfoods");
-const userCollection = client.db("Food-Truck").collection("allUsers");
+const usersCollection = client.db("Food-Truck").collection("allUsers");
 const ordersCollection = client.db("Food-Truck").collection("allOrders");
 
 async function run() {
@@ -69,9 +69,13 @@ async function run() {
         })
         .send({ success: true });
     });
+
+    // insert user
     app.post("/api/v1/users", async (req, res) => {
-      const user = req.body;
-      console.log(user);
+      const userInfo = req.body;
+      console.log(userInfo);
+      const result = await usersCollection.insertOne(userInfo);
+      res.send(result);
     });
     app.post("/api/v1/logout", async (req, res) => {
       const user = req.body;
@@ -117,10 +121,34 @@ async function run() {
       const result = await foodCollection.findOne(query);
       res.send(result);
     });
+    // add product to Food  database
+    app.post("/api/v1/foods", async (res, req) => {
+      const food = req.params.id;
+      // const q
+      const result = await foodCollection.insertOne(food);
+      res.send(result);
+    });
 
     // update food database
-    app.post("/api/v1/foods/food/:id", async (req, res) => {
+    app.put("/api/v1/foods/:id", async (req, res) => {
       const id = req.params.id;
+      // const query={}
+      const doc = req.body;
+      console.log(doc);
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          order_quantity: doc.order_quantity,
+          quantity: doc.quantity,
+        },
+      };
+      const result = await foodCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
     });
 
     // order apis
@@ -129,13 +157,22 @@ async function run() {
       // const id = req.params.id;
       const order = req.body;
       console.log(order);
-      const result = ordersCollection.insertOne(order);
+      const result = await ordersCollection.insertOne(order);
       res.send(result);
     });
+    // get order
     app.get("/api/v1/orders", async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
       const result = await ordersCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.delete("/api/v1/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      // res.send("")
+      const query = { _id: new ObjectId(id) };
+      const result = await ordersCollection.deleteOne(query);
       res.send(result);
     });
 
