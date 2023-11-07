@@ -129,6 +129,8 @@ async function run() {
       // const id = req.params.id;
       const order = req.body;
       console.log(order);
+      const result = ordersCollection.insertOne(order);
+      res.send(result);
     });
     app.get("/api/v1/orders", async (req, res) => {
       const email = req.query.email;
