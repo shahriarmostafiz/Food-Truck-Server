@@ -53,6 +53,7 @@ const client = new MongoClient(uri, {
 
 const foodCollection = client.db("Food-Truck").collection("allfoods");
 const userCollection = client.db("Food-Truck").collection("allUsers");
+const ordersCollection = client.db("Food-Truck").collection("allOrders");
 
 async function run() {
   try {
@@ -122,9 +123,18 @@ async function run() {
       const id = req.params.id;
     });
 
-    app.post("/api/v1/order/:id", async (req, res) => {
-      const id = req.params.id;
+    // order apis
+    // post order
+    app.post("/api/v1/orders", async (req, res) => {
+      // const id = req.params.id;
       const order = req.body;
+      console.log(order);
+    });
+    app.get("/api/v1/orders", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await ordersCollection.find(query).toArray();
+      res.send(result);
     });
 
     // Connect the client to the server	(optional starting in v4.7)
