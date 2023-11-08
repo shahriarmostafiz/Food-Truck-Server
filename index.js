@@ -54,6 +54,7 @@ const client = new MongoClient(uri, {
 const foodCollection = client.db("Food-Truck").collection("allfoods");
 const usersCollection = client.db("Food-Truck").collection("allUsers");
 const ordersCollection = client.db("Food-Truck").collection("allOrders");
+const reviewCollection = client.db("Food-Truck").collection("reviews");
 
 async function run() {
   try {
@@ -129,7 +130,7 @@ async function run() {
       res.send(result);
     });
 
-    // update food database after order
+    // update food database after
     app.patch("/api/v1/foods/:id", async (req, res) => {
       const id = req.params.id;
       // const query={}
@@ -151,9 +152,16 @@ async function run() {
       res.send(result);
     });
     // get user added products
-    app.get("/api/v1/foods", async (req, res) => {
+    app.get("/api/v1/foods", verifyToken, async (req, res) => {
       const email = req.query.email;
-      const query = { chef_email: email };
+      if (req.user.email !== req.query.email) {
+        return res.status(403).send({ message: "forbidden" });
+      }
+      let query = {};
+      if (req.query?.email) {
+        query = { chef_email: email };
+      }
+
       const result = await foodCollection.find(query).toArray();
       res.send(result);
     });
@@ -198,9 +206,16 @@ async function run() {
       res.send(result);
     });
     // get order
-    app.get("/api/v1/orders", async (req, res) => {
+    app.get("/api/v1/orders", verifyToken, async (req, res) => {
       const email = req.query.email;
-      const query = { email: email };
+      if (req.user.email !== req.query.email) {
+        return res.status(403).send({ message: "forbidden" });
+      }
+
+      let query = {};
+      if (req.query?.email) {
+        query = { email: email };
+      }
       const result = await ordersCollection.find(query).toArray();
       res.send(result);
     });
@@ -210,6 +225,12 @@ async function run() {
       // res.send("")
       const query = { _id: new ObjectId(id) };
       const result = await ordersCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // get the reviews
+    app.get("/api/v1/reviews", async (req, res) => {
+      const result = await reviewCollection.find().toArray();
       res.send(result);
     });
 
