@@ -16,7 +16,10 @@ const SECRET = process.env.ACCESS;
 const app = express();
 app.use(
   cors({
-    origin: ["https://food-truck-7b431.web.app"],
+    origin: [
+      "https://food-truck-7b431.web.app",
+      "https://foodtruckbyshahriarmostafiz.surge.sh",
+    ],
     credentials: true,
   })
 );
