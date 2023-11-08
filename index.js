@@ -130,17 +130,49 @@ async function run() {
     });
 
     // update food database
-    app.put("/api/v1/foods/:id", async (req, res) => {
+    app.patch("/api/v1/foods/:id", async (req, res) => {
       const id = req.params.id;
       // const query={}
       const doc = req.body;
       console.log(doc);
       const filter = { _id: new ObjectId(id) };
-      const options = { upsert: true };
+      // const options = { upsert: true };
       const updatedDoc = {
         $set: {
           order_quantity: doc.order_quantity,
           quantity: doc.quantity,
+        },
+      };
+      const result = await foodCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+    // get user added products
+    // app.get("/api")
+    // update userAdded food
+    app.put("/api/v1/userAddedFoods/:id", async (req, res) => {
+      const id = req.params.id;
+      const doc = req.body;
+      console.log(req.body);
+      // upsert(true)
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          food_name: doc?.food_name,
+          image: doc?.image,
+          category: doc?.category,
+          price: doc?.price,
+          quantity: doc?.quantity,
+          order_quantity: doc?.order_quantity,
+          chef: doc?.chef,
+          chef_email: doc?.chef_email,
+          origin: doc?.origin,
+          description: doc?.description,
+          added_Time: doc?.added_Time,
         },
       };
       const result = await foodCollection.updateOne(
