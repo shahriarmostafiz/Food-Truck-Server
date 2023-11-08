@@ -16,7 +16,7 @@ const SECRET = process.env.ACCESS;
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["https://food-truck-7b431.web.app"],
     credentials: true,
   })
 );
@@ -66,7 +66,7 @@ async function run() {
         .cookie("token", token, {
           httpOnly: true,
           secure: true,
-          sameSite: false,
+          sameSite: "none",
         })
         .send({ success: true });
     });
@@ -78,10 +78,14 @@ async function run() {
       const result = await usersCollection.insertOne(userInfo);
       res.send(result);
     });
+
+    // clear cookie
     app.post("/api/v1/logout", async (req, res) => {
       const user = req.body;
       console.log("logging out this user", user);
-      res.clearCookie("token", { maxAge: 0 }).send({ logout: true });
+      res
+        .clearCookie("token", { maxAge: 0, sameSite: "none", secure: true })
+        .send({ logout: true });
     });
 
     // food apis
@@ -137,7 +141,7 @@ async function run() {
       const doc = req.body;
       console.log(doc);
       const filter = { _id: new ObjectId(id) };
-      // const options = { upsert: true };
+      const options = { upsert: true };
       const updatedDoc = {
         $set: {
           order_quantity: doc.order_quantity,
