@@ -122,14 +122,14 @@ async function run() {
       res.send(result);
     });
     // add product to Food  database
-    app.post("/api/v1/foods", async (res, req) => {
-      const food = req.params.id;
+    app.post("/api/v1/addfood", async (req, res) => {
+      const food = req.body;
       // const q
       const result = await foodCollection.insertOne(food);
       res.send(result);
     });
 
-    // update food database
+    // update food database after order
     app.patch("/api/v1/foods/:id", async (req, res) => {
       const id = req.params.id;
       // const query={}
@@ -151,28 +151,33 @@ async function run() {
       res.send(result);
     });
     // get user added products
-    // app.get("/api")
+    app.get("/api/v1/foods", async (req, res) => {
+      const email = req.query.email;
+      const query = { chef_email: email };
+      const result = await foodCollection.find(query).toArray();
+      res.send(result);
+    });
     // update userAdded food
     app.put("/api/v1/userAddedFoods/:id", async (req, res) => {
       const id = req.params.id;
-      const doc = req.body;
+      const food = req.body;
       console.log(req.body);
       // upsert(true)
       const filter = { _id: new ObjectId(id) };
       const options = { upsert: true };
       const updatedDoc = {
         $set: {
-          food_name: doc?.food_name,
-          image: doc?.image,
-          category: doc?.category,
-          price: doc?.price,
-          quantity: doc?.quantity,
-          order_quantity: doc?.order_quantity,
-          chef: doc?.chef,
-          chef_email: doc?.chef_email,
-          origin: doc?.origin,
-          description: doc?.description,
-          added_Time: doc?.added_Time,
+          food_name: food.food_name,
+          image: food.image,
+          category: food.category,
+          price: food.price,
+          quantity: food.quantity,
+          order_quantity: food.order_quantity,
+          chef: food.chef,
+          chef_email: food.chef_email,
+          origin: food.origin,
+          description: food.description,
+          added_Time: food.added_Time,
         },
       };
       const result = await foodCollection.updateOne(
